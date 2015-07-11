@@ -53,6 +53,8 @@ public class VillageManager {
         try (FileInputStream in = new FileInputStream(homeFile)) {
             ownHomeData = messageFactory.fromStream(in);
             homeVillage = Json.valueOf(ownHomeData.getString("homeVillage"), Village.class);
+        } catch (Exception e) {
+            log.info("!!!  Could not read the home file provided. Make sure you are using a pdu file!!!");
         }
 
         enemyHomes = Files.walk(villageDir.toPath())

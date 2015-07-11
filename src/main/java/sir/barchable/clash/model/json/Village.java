@@ -47,6 +47,7 @@ public class Village {
     public Integer last_league_rank;
     public Integer last_alliance_level;
     public Integer last_league_shuffle;
+    public Integer last_season_seen;
     public Integer last_news_seen;
     public Boolean edit_mode_shown;
     public String troop_req_msg;

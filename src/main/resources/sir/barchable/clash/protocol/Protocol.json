@@ -1525,11 +1525,6 @@
       "comment" : null,
       "default" : null
     }, {
-      "name" : "resources",
-      "type" : "ResourceListComponent",
-      "comment" : null,
-      "default" : null
-    }, {
       "name" : null,
       "type" : "INT",
       "comment" : null,
@@ -1819,11 +1814,6 @@
       "type" : "UserComponent",
       "comment" : null,
       "default" : null
-    }, {
-      "name" : "resources",
-      "type" : "ResourceListComponent",
-      "comment" : null,
-      "default" : null
     } ],
     "extensions" : [ ]
   }, {
@@ -1907,11 +1897,6 @@
       "type" : "UserComponent",
       "comment" : null,
       "default" : null
-    }, {
-      "name" : "resources",
-      "type" : "ResourceListComponent",
-      "comment" : null,
-      "default" : null
     } ],
     "extensions" : [ ]
   }, {
@@ -1946,11 +1931,6 @@
     }, {
       "name" : "user",
       "type" : "UserComponent",
-      "comment" : null,
-      "default" : null
-    }, {
-      "name" : "resources",
-      "type" : "ResourceListComponent",
       "comment" : null,
       "default" : null
     } ],

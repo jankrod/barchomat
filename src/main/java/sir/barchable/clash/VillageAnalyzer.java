@@ -48,6 +48,9 @@ public class VillageAnalyzer implements MessageTap {
             case EnemyHomeData:
                 try {
                     Village village = Json.valueOf(homeVillage, Village.class);
+                    if(village.respawnVars==null){
+                        village.respawnVars = new Village.RespawnVars();
+                    }
                     analyzeHomeVillage(message, village);
                 } catch (RuntimeException | IOException e) {
                     log.warn("Could not read village", e);
@@ -94,7 +97,6 @@ public class VillageAnalyzer implements MessageTap {
         //
         // Sum stats for all buildings
         //
-
         for (Village.Building building : village.buildings) {
             int typeId = building.data;
             String buildingName;
@@ -151,7 +153,6 @@ public class VillageAnalyzer implements MessageTap {
                 } else {
                     // Time passed since reset
                     int timePassed = maxTime - resTime;
-
                     // Resources produced during that time
 
                     // resourceValue = timePassed * resourcePerHour / 3600;
@@ -176,12 +177,13 @@ public class VillageAnalyzer implements MessageTap {
         // Storage
         //
 
-        Message resources = message.getMessage("resources");
+        // TODO Need to parse buildings
+        // Message resources = message.getMessage("resources");
+        Message resources = null;
         LootCollection loot = sumStorage(resources).withCollectorLoot(
             new Loot(collectorTotals.get("Gold"), collectorTotals.get("Elixir"), collectorTotals.get("DarkElixir"))
         );
 
-        int timeToGemboxDrop = village.respawnVars.time_to_gembox_drop < 0 ? 0 : village.respawnVars.time_to_gembox_drop;
         if (message.getType() == OwnHomeData) {
             if (sessionState.getUserId() == 0) {
                 log.info("Welcome {}", userName);
@@ -201,22 +203,27 @@ public class VillageAnalyzer implements MessageTap {
         // Garrison
         //
 
-        List<String> unitDescriptions = new ArrayList<>();
-        Object[] castleUnits = (Object[]) resources.get("allianceUnits");
-        for (int i = 0; i < castleUnits.length; i++) {
-            Map<String, Object> castleUnit = (Map<String, Object>) castleUnits[i];
-            int count = (Integer) castleUnit.get("count");
-            if (count > 0) {
-                int level = (Integer) castleUnit.get("level") + 1;
-                int typeId = (Integer) castleUnit.get("typeId");
-                String unitName = logic.getSubTypeName(typeId);
-                unitDescriptions.add("lvl " + level + " " + unitName + " x " + count);
-            }
-        }
+        // TODO Need to parse buildings
+        // Message resources = message.getMessage("resources");
+        // List<String> unitDescriptions = new ArrayList<>();
+        String unitDescriptions = null;
+        // Object[] castleUnits = (Object[]) resources.get("allianceUnits");
+        // for (int i = 0; i < castleUnits.length; i++) {
+        //     Map<String, Object> castleUnit = (Map<String, Object>) castleUnits[i];
+        //     int count = (Integer) castleUnit.get("count");
+        //     if (count > 0) {
+        //         int level = (Integer) castleUnit.get("level") + 1;
+        //         int typeId = (Integer) castleUnit.get("typeId");
+        //         String unitName = logic.getSubTypeName(typeId);
+        //         unitDescriptions.add("lvl " + level + " " + unitName + " x " + count);
+        //     }
+        // }
 
         //
         // Dump stats
         //
+
+        int timeToGemboxDrop = Math.max(0,village.respawnVars.time_to_gembox_drop);
 
         log.info("{}", userName);
         log.info("Gem box drop {}", Dates.formatInterval(timeToGemboxDrop));

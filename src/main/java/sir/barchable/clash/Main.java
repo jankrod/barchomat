@@ -27,13 +27,18 @@ public class Main {
         @Parameter(names = {"-s", "--save"}, description = "Save messages to the 'villages' directory")
         private boolean save;
 
+        @Parameter(names = {"-ip"}, description = "Ip address of clash server")
+        private String serverIp;
+
         @Parameter(names = {"-n", "--name-server"}, description = "Name server to read up-stream server address from")
         private String nameServer = "8.8.8.8";
 
         public boolean getSave() {
             return save;
         }
-
+        public String getServerIp() {
+            return serverIp;
+        }
         public String getNameServer() {
             return nameServer;
         }

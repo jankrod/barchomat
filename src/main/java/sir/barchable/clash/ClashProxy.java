@@ -4,10 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.barchable.clash.protocol.Connection;
 import sir.barchable.clash.proxy.MessageSaver;
+import sir.barchable.clash.proxy.MessageLogger;
 import sir.barchable.clash.proxy.MessageTapFilter;
 import sir.barchable.clash.proxy.PduFilterChain;
 import sir.barchable.clash.proxy.ProxySession;
 import sir.barchable.util.Dns;
+import sir.barchable.clash.protocol.Pdu;
+
+import java.io.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +51,7 @@ public class ClashProxy {
     /**
      * Source for the address of the real server.
      */
-    private Dns dns;
+    private InetAddress serverAddress;
 
     public ClashProxy(ClashServices services, Main.ProxyCommand command) throws IOException {
 
@@ -58,17 +62,22 @@ public class ClashProxy {
         // the client to this proxy. The default, 8.8.8.8, is one of Google's public DNS servers.
         //
 
-        this.dns = new Dns(command.getNameServer());
+        if( command.getServerIp()!=null ) {
+            this.serverAddress = InetAddress.getByName(command.getServerIp());
+        } else {
+            Dns dns = new Dns(command.getNameServer());
+            this.serverAddress = dns.getAddress("gamea.clashofclans.com");
+        }
 
         //
         // This filter prints stuff
         //
-
+        MessageLogger logger = new MessageLogger(new OutputStreamWriter(System.out));
         filterChain = filterChain.addAfter(new MessageTapFilter(
             services.getMessageFactory(),
             new VillageAnalyzer(services.getLogic()),
-            new AttackAnalyzer(services.getLogic())
-//            logger.tapFor(EndClientTurn),
+            new AttackAnalyzer(services.getLogic()),
+            logger.tapFor(Pdu.Type.AttackNpc)
 //            logger.tapFor(WarHomeData, "warVillage")
         ));
 
@@ -115,10 +124,9 @@ public class ClashProxy {
     private void accept(Socket socket) {
         log.info("Client connected from {}", socket.getInetAddress());
         try {
-            InetAddress serverAddress = dns.getAddress("gamea.clashofclans.com");
             try (
                 Connection clientConnection = new Connection(socket);
-                Connection serverConnection = new Connection(new Socket(serverAddress, CLASH_PORT))
+                Connection serverConnection = new Connection(new Socket(this.serverAddress, CLASH_PORT))
             ) {
                 ProxySession session = ProxySession.newSession(
                     services.getMessageFactory(), clientConnection, serverConnection, filterChain
