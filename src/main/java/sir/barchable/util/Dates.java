@@ -1,5 +1,9 @@
 package sir.barchable.util;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.text.SimpleDateFormat;
+
 /**
  * @author Sir Barchable
  *         Date: 2/05/15
@@ -26,5 +30,14 @@ public class Dates {
         }
         buffer.append(String.format("%02d:%02d:%02d", h, m, s));
         return buffer.toString();
+    }
+
+    public static String formatIntervalToDayString(int s) {
+        GregorianCalendar date = new GregorianCalendar();
+        date.add(Calendar.SECOND,s);   
+
+        SimpleDateFormat format = new SimpleDateFormat("MM/dd hh:mm:ss a");
+        format.setCalendar(date);
+        return format.format(date.getTime());
     }
 }
