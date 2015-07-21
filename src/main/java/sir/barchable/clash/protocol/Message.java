@@ -137,7 +137,7 @@ public class Message {
     @Override
     public String toString() {
         try {
-            return Json.toString(fields);
+            return Json.toPrettyString(fields);
         } catch (JsonProcessingException e) {
             // Shouldn't happen
             throw new PduException(e);

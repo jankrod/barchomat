@@ -69,6 +69,12 @@ public class ClashProxy {
             this.serverAddress = dns.getAddress("gamea.clashofclans.com");
         }
 
+
+        // filterChain = filterChain.addAfter(
+        //     new MessageSaver(services.getMessageFactory(),new File(services.getWorkingDir(), "villages"), Pdu.Type.UnknownInfoRequest)
+        // );
+
+
         //
         // This filter prints stuff
         //
@@ -76,10 +82,11 @@ public class ClashProxy {
         filterChain = filterChain.addAfter(new MessageTapFilter(
             services.getMessageFactory(),
             new VillageAnalyzer(services.getLogic()),
-            new AttackAnalyzer(services.getLogic()),
-            logger.tapFor(Pdu.Type.AttackNpc)
+            new AttackAnalyzer(services.getLogic())
 //            logger.tapFor(WarHomeData, "warVillage")
         ));
+
+
 
         //
         // This filter dumps village messages to the working directory
@@ -91,7 +98,8 @@ public class ClashProxy {
                 log.info("Created save directory for villages: {}", villageDir);
             }
             filterChain = filterChain.addAfter(
-                new MessageSaver(services.getMessageFactory(), villageDir)
+                //MessageSaver.VillageSaver(services.getMessageFactory(), villageDir)
+                MessageSaver.SaveAll(services.getMessageFactory(), villageDir)
             );
         }
     }

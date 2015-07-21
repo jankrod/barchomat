@@ -33,22 +33,29 @@ public class AttackAnalyzer implements MessageTap {
 
     @Override
     public void onMessage(Message message) {
-        switch (message.getType()) {
-            case EnemyHomeData:
-                // Set up for attack
-                setup(message.getMessage("attackerResources"));
-                break;
+        try{
+            switch (message.getType()) {
+                case EnemyHomeData:
+                    // Set up for attack
+                    setup(message.getMessage("attackerResources"));
+                    break;
 
-            case OwnHomeData:
-                // Check for completed attack
-                summarize(message.getMessage("resources"));
-                break;
+                case OwnHomeData:
+                    // Check for completed attack
+                    //summarize(message.getMessage("resources"));
+                    log.warn("Don't know how to get resources");
+                    break;
 
-            case EndClientTurn:
-                // Add up the cost of troops/spells used during the attack
-                accumulateCost(message.getArray("commands"));
-                break;
+                case EndClientTurn:
+                    // Add up the cost of troops/spells used during the attack
+                    accumulateCost(message.getArray("commands"));
+                    break;
+            }
+        } catch (Exception e) {
+            log.warn( "AttackAnalyzer.onMessage error with type"+ message.getType());
+            throw e;
         }
+       
     }
 
     /**

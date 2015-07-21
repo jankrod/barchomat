@@ -9,6 +9,8 @@ package sir.barchable.clash.protocol;
 public class Pdu {
     public enum Type {
         Unknown(0),
+        UnknownStart1(519),
+        UnknownStart2(506),
         Login(10101),
         LoginUsingSession(10102),
         CreateAccount(10103),
@@ -146,6 +148,7 @@ public class Pdu {
         AllianceChangeFailed(24333),
         AvatarProfile(24334),
         WarLog(24338),
+        UnknownInfoRequest(24340),
         AllianceRankingList(24401),
         AvatarRankingList(24403),
         AvatarLocalRankingList(24404),

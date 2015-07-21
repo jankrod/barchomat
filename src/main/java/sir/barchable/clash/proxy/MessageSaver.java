@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -34,15 +35,23 @@ public class MessageSaver implements PduFilter {
     private Set<Type> types;
 
     /**
-     * Construct a MessageSaver for village messages.
+     * Helper to make a saver that writes any vilage PDU
      *
      * @param saveDir where to save the messages
      */
-    public MessageSaver(MessageFactory messageFactory, File saveDir) throws FileNotFoundException {
-        this(
+    static public MessageSaver VillageSaver(MessageFactory messageFactory, File saveDir) throws FileNotFoundException {
+        return new MessageSaver(
             messageFactory,
             saveDir,
             OwnHomeData, VisitedHomeData, EnemyHomeData, WarHomeData, HomeBattleReplayData
+        );
+    }
+
+
+    static public MessageSaver SaveAll(MessageFactory messageFactory, File saveDir) throws FileNotFoundException {
+        return new MessageSaver(
+            messageFactory,
+            saveDir
         );
     }
 
@@ -65,16 +74,30 @@ public class MessageSaver implements PduFilter {
     public Pdu filter(Pdu pdu) throws IOException {
         Type type = Type.valueOf(pdu.getId());
         try {
-            if (types.contains(type)) {
+
+            log.debug("Write Pdu id:{} type:{}", pdu.getId(), pdu.getType());
+            if ( types.size()==0 ||  types.contains(type)) {
+
                 String villageName = guessName(pdu);
                 String name = String.format("%s[%3$s]%2$tF-%2$tH-%2$tM-%2$tS.pdu", type, new Date(), villageName);
                 File file = new File(saveDir, name);
                 try (PduOutputStream out = new PduOutputStream(new FileOutputStream(file), NOOP_CIPHER)) {
                     out.write(pdu);
                 }
+
+
+                try{
+                    Message message = messageFactory.fromPdu(pdu);
+                    name = String.format("%s[%3$s]%2$tF-%2$tH-%2$tM-%2$tS.json", type, new Date(), villageName);
+                    PrintWriter writer = new PrintWriter(saveDir+"/"+name,"UTF-8");
+                    writer.println(message.toString());
+                    writer.close();
+                } catch(Exception e){
+                    log.warn("Can't write JSON for the pdu:{}",type);
+                }
             }
         } catch (PduException | IOException e) {
-            log.error("Couldn't save village", e);
+            log.error("Couldn't save Pdu", e);
         }
         return pdu;
     }
@@ -93,8 +116,7 @@ public class MessageSaver implements PduFilter {
                 case OwnHomeData:
                 case VisitedHomeData:
                 case EnemyHomeData:
-                    Message user = message.getMessage("user");
-                    villageName = user.getString("userName");
+                    villageName = message.getLong("homeId").toString();
                     break;
 
                 case WarHomeData:
@@ -107,7 +129,7 @@ public class MessageSaver implements PduFilter {
                     villageName = replay.defender.name;
                     break;
             }
-        } catch (RuntimeException | IOException e) {
+        } catch (Exception e) {
             log.warn("Couldn't extract name from pdu {}: {}", pdu.getId(), e.toString());
         }
 
