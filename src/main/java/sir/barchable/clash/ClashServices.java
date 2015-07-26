@@ -21,7 +21,8 @@ public class ClashServices {
     private MessageFactory messageFactory;
     private File workingDir;
 
-    public ClashServices(Env env) throws IOException {
+    public void setEnv(Env env) throws IOException {
+
         workingDir = env.getWorkingDir();
         if (!workingDir.exists() || !workingDir.isDirectory()) {
             throw new ParameterException(workingDir.toString());
@@ -67,5 +68,12 @@ public class ClashServices {
 
     public File getWorkingDir() {
         return workingDir;
+    }
+
+
+    static private ClashServices _instance = new ClashServices();
+
+    static public ClashServices getInstance() {
+        return _instance;
     }
 }

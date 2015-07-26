@@ -118,7 +118,9 @@ public class Main {
     }
 
     private void run(String command) throws IOException, InterruptedException {
-        ClashServices services = new ClashServices(env);
+
+        ClashServices services = ClashServices.getInstance(); 
+        services.setEnv(env);
 
         if (command == null) {
             throw new ParameterException("Missing command");
