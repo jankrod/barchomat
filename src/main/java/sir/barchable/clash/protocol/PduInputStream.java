@@ -80,4 +80,20 @@ public class PduInputStream implements Closeable {
     public void close() throws IOException {
         in.close();
     }
+
+
+    public static Pdu pduFromFile( String fileName ) {
+
+        Pdu pdu = null;
+        try{
+            FileInputStream in = new FileInputStream(fileName);
+            PduInputStream pIS = new PduInputStream(in);
+            pdu = pIS.read();
+            in.close();
+        } catch( IOException e ) {
+
+        }
+
+        return pdu;
+    }
 }
