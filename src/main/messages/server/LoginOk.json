@@ -13,7 +13,7 @@
     {"name": "environment", "type": "STRING"},
     {"name": "loginCount", "type": "INT"},
     {"name": "timeOnline", "type": "INT"},
-    {"type": "INT"},
+    {"name": "f12", "type": "INT"},
     {"name": "facebookAppId", "type": "STRING"},
     {"name": "lastLoginDate", "type": "STRING"},
     {"name": "joinDate", "type": "STRING"},

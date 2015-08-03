@@ -75,7 +75,6 @@ public class MessageSaver implements PduFilter {
         Type type = Type.valueOf(pdu.getId());
         try {
 
-            log.debug("Write Pdu id:{} type:{}", pdu.getId(), pdu.getType());
             if ( types.size()==0 ||  types.contains(type)) {
 
                 String villageName = guessName(pdu);
@@ -108,7 +107,7 @@ public class MessageSaver implements PduFilter {
      * @return the {@link #sanitize(String) sanitized} village name, or "anon" if it can't be determined
      */
     private String guessName(Pdu pdu) {
-        String villageName = "anon";
+        String villageName = "";
 
         try {
             Message message = messageFactory.fromPdu(pdu);

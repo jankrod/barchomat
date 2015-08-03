@@ -1,5 +1,9 @@
 package sir.barchable.clash.protocol;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import sir.barchable.clash.protocol.Protocol.StructDefinition.FieldDefinition;
 
 import java.io.IOException;
@@ -13,6 +17,7 @@ import java.util.Map;
  */
 public class MessageWriter {
     private TypeFactory typeFactory;
+    private static final Logger log = LoggerFactory.getLogger(MessageWriter.class);
 
     public MessageWriter(TypeFactory typeFactory) {
         this.typeFactory = typeFactory;
@@ -164,5 +169,13 @@ public class MessageWriter {
                 }
             }
         }
+        
+        int[] end = (int[])struct.get("end");
+        if (end != null ) {
+            for( int i : end ){
+                writePrimitive( typeFactory.resolveType("INT"), (Integer)i, out);
+            }
+        }
+        
     }
 }

@@ -1,13 +1,14 @@
 package sir.barchable.clash.protocol;
 
 import sir.barchable.util.NoopCipher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Message construction and serialization.
@@ -16,6 +17,8 @@ import java.util.Optional;
  *         Date: 2/05/15
  */
 public class MessageFactory {
+
+    private static final Logger log = LoggerFactory.getLogger(MessageFactory.class);
     private TypeFactory typeFactory;
     private MessageReader reader;
     private MessageWriter writer;
@@ -80,7 +83,15 @@ public class MessageFactory {
             try {
                 String name = structName.get();
                 TypeFactory.Type type = typeFactory.resolveType(name);
-                Map<String, Object> fields = (Map<String, Object>) reader.readValue(type, MessageInputStream.toMessageInputStream(in));
+
+                MessageInputStream mIn = MessageInputStream.toMessageInputStream(in);
+                Map<String, Object> fields = new LinkedHashMap<>( (Map<String, Object>)reader.readValue(type, mIn) );
+
+
+                Object end = reader.readEnd(mIn);
+                log.debug( "read fromStream: "+end );
+                fields.put("end",end);
+
                 return new Message(typeFactory, name, fields);
             } catch (TypeException | IOException e) {
                 throw new PduException(e);

@@ -8,10 +8,8 @@ import sir.barchable.clash.protocol.Protocol.StructDefinition.FieldDefinition;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.lang.StringBuilder;
 
 /**
  * @author Sir Barchable
@@ -85,6 +83,27 @@ public class MessageReader {
         }
     }
 
+    public int[] readEnd( MessageInputStream in) {
+        ArrayList<Integer> extraBytes = new ArrayList<Integer>();
+        try{
+            while(true){
+                Integer b = (Integer)in.readInt();
+                if( b<0 ) {
+                    break;
+                }
+                extraBytes.add( b ); 
+            }
+        } catch( Exception e ){}
+
+        int[] array = new int[extraBytes.size()];
+        for( int i=0; i<extraBytes.size(); i++) {
+            array[i]= (int)extraBytes.get(i);
+        }
+        return array;
+
+        //return (Byte[])extraBytes.toArray(new Byte[1] );
+    }
+
     private Object readArray(TypeFactory.Type definition, MessageInputStream in) throws IOException {
         int length;
         if (definition.getLength() > 0) {
@@ -153,6 +172,8 @@ public class MessageReader {
         }
     }
 
+    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
     private Object readStruct(TypeFactory.Type definition, MessageInputStream in) {
         Map<String, Object> fields = new LinkedHashMap<>();
         int fieldIndex = 0;
@@ -188,9 +209,14 @@ public class MessageReader {
                     log.warn("No extension of {} with id {}", definition.getName(), id);
                 }
             }
+
+
         } catch (RuntimeException | IOException e) {
+            log.error("Pdu Error", e);
             throw new PduException("Could not read field " + fieldIndex + " of " + definition.getName(), e);
         }
         return fields;
     }
+
+
 }

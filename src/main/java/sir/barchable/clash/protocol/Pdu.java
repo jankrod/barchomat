@@ -148,7 +148,7 @@ public class Pdu {
         AllianceChangeFailed(24333),
         AvatarProfile(24334),
         WarLog(24338),
-        UnknownInfoRequest(24340),
+        UnknownInfoResponse(24340),
         AllianceRankingList(24401),
         AvatarRankingList(24403),
         AvatarLocalRankingList(24404),
