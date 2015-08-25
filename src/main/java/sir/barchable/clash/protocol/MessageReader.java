@@ -83,23 +83,18 @@ public class MessageReader {
         }
     }
 
-    public int[] readEnd( MessageInputStream in) {
+    public Object[] readEnd( MessageInputStream in) {
         ArrayList<Integer> extraBytes = new ArrayList<Integer>();
         try{
             while(true){
-                Integer b = (Integer)in.readInt();
+                Integer b = (Integer)in.read();
                 if( b<0 ) {
                     break;
                 }
                 extraBytes.add( b ); 
             }
         } catch( Exception e ){}
-
-        int[] array = new int[extraBytes.size()];
-        for( int i=0; i<extraBytes.size(); i++) {
-            array[i]= (int)extraBytes.get(i);
-        }
-        return array;
+        return extraBytes.toArray(new Integer[1]);
 
         //return (Byte[])extraBytes.toArray(new Byte[1] );
     }

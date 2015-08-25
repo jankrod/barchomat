@@ -4,8 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import sir.barchable.clash.protocol.Protocol.StructDefinition;
 import sir.barchable.clash.protocol.Protocol.StructDefinition.FieldDefinition;
 import sir.barchable.util.Json;
+import sir.barchable.clash.model.json.Village;
+import sir.barchable.clash.model.json.WarVillage;
 
 import java.util.LinkedHashMap;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -137,10 +140,34 @@ public class Message {
     @Override
     public String toString() {
         try {
-            return Json.toPrettyString(fields);
-        } catch (JsonProcessingException e) {
+            return Json.toPrettyString( this.getFlatFields() );
+        } catch (Exception e) {
             // Shouldn't happen
-            throw new PduException(e);
+            return e.toString();
         }
+    }
+
+    /**
+     * Unpack nested JSON encoded objects. This will extract know JSON formatted object descriptions from the PDU,
+     * deserialize them, and insert the raw objects back into the source map in place of the strings.
+     */
+    private Map<String, Object> getFlatFields() throws IOException {
+        Map<String, Object> fields = new LinkedHashMap<>( this.getFields() );
+        
+        switch (this.getType()) {
+            case EnemyHomeData:
+            case OwnHomeData:
+            case VisitedHomeData:
+                Village village = Json.valueOf((String) fields.get("homeVillage"), Village.class);
+                fields.put("homeVillage", village);
+                break;
+
+            case WarHomeData:
+                WarVillage warVillage = Json.valueOf((String) fields.get("homeVillage"), WarVillage.class);
+                fields.put("homeVillage", warVillage);
+                break;
+        }
+
+        return fields;
     }
 }

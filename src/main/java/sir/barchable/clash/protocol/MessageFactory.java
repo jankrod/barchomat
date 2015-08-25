@@ -87,9 +87,8 @@ public class MessageFactory {
                 MessageInputStream mIn = MessageInputStream.toMessageInputStream(in);
                 Map<String, Object> fields = new LinkedHashMap<>( (Map<String, Object>)reader.readValue(type, mIn) );
 
-
-                Object end = reader.readEnd(mIn);
-                log.debug( "read fromStream: "+end );
+                Object[] end = reader.readEnd(mIn);
+                log.debug( "eng length:"+end.length);
                 fields.put("end",end);
 
                 return new Message(typeFactory, name, fields);

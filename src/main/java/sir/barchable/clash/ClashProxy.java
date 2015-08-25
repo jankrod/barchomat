@@ -98,8 +98,8 @@ public class ClashProxy {
                 log.info("Created save directory for villages: {}", villageDir);
             }
             filterChain = filterChain.addAfter(
-                //MessageSaver.VillageSaver(services.getMessageFactory(), villageDir)
-                MessageSaver.SaveAll(services.getMessageFactory(), villageDir)
+                MessageSaver.VillageSaver(services.getMessageFactory(), villageDir)
+                //MessageSaver.SaveAll(services.getMessageFactory(), villageDir)
             );
         }
     }

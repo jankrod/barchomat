@@ -82,9 +82,9 @@ public class ProxySession {
 
     private void start() throws IOException {
         // A pipe for messages from client -> server
-        Pipe clientPipe = new Pipe(clientConnection.getName(), clientConnection.getIn(), serverConnection.getOut());
+        Pipe clientPipe = new Pipe("Request", clientConnection.getIn(), serverConnection.getOut());
         // A pipe for messages from server -> client
-        Pipe serverPipe = new Pipe(serverConnection.getName(), serverConnection.getIn(), clientConnection.getOut());
+        Pipe serverPipe = new Pipe("Response", serverConnection.getIn(), clientConnection.getOut());
 
         KeyTap keyListener = new KeyTap();
         PduFilter loginFilter = filterChain.addAfter(new MessageTapFilter(messageFactory, keyListener));

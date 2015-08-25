@@ -170,10 +170,12 @@ public class MessageWriter {
             }
         }
         
-        int[] end = (int[])struct.get("end");
+        Object end = struct.get("end");
         if (end != null ) {
-            for( int i : end ){
-                writePrimitive( typeFactory.resolveType("INT"), (Integer)i, out);
+            for( Integer b : (Integer[])end ){
+                if( b!=null ) {
+                    writePrimitive( typeFactory.resolveType("BYTE"), (byte)(int)b, out);
+                }
             }
         }
         

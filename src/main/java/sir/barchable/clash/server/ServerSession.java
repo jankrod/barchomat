@@ -12,6 +12,7 @@ import sir.barchable.clash.protocol.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.EOFException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -121,141 +122,203 @@ public class ServerSession {
     private void run() {
         try {
 
-            //
-            // First packet is the login from the client.
-            // It contains the seed for the key generator.
-            //
-
-            Pdu loginPdu = clientConnection.getIn().read();
-            Message loginMessage = messageFactory.fromPdu(loginPdu);
-            if (loginMessage.getType() != Login) {
-                throw new IllegalStateException("Expected Login");
-            }
-            Long userId = loginMessage.getLong("userId");
-            if (userId == null) {
-                throw new PduException("No user id in login");
-            }
-            sessionState.setUserId(userId);
-
-            Object clientSeed = loginMessage.get("clientSeed");
-            if (clientSeed == null || !(clientSeed instanceof Integer)) {
-                throw new PduException("Expected client seed in login message");
-            }
-            Clash7Random prng = new Clash7Random((Integer) clientSeed);
-
-            //
-            // Generate a nonce and pass it back to the client
-            //
-
-            Message encryptionMessage = messageFactory.newMessage(Encryption);
-
-            byte[] nonce = new byte[24];
-            ThreadLocalRandom.current().nextBytes(nonce); // generate a new key
-            encryptionMessage.set("serverRandom", nonce);
-            encryptionMessage.set("version", 1);
-            clientConnection.getOut().write(messageFactory.toPdu(encryptionMessage));
-
-            //
-            // Re-key the streams
-            //
-
-            clientConnection.setKey(prng.scramble(nonce));
-
-            //
-            // Then tell the client that all is well
-            //
-
-            Message loginOkMessage = messageFactory.newMessage(LoginOk);
-
-            loginOkMessage.set("userId", userId);
-            loginOkMessage.set("homeId", userId);
-            loginOkMessage.set("userToken", loginMessage.get("userToken"));
-            loginOkMessage.set("majorVersion", loginMessage.get("majorVersion"));
-            loginOkMessage.set("minorVersion", loginMessage.get("minorVersion"));
-            loginOkMessage.set("environment", "prod");
-            loginOkMessage.set("loginCount", 1);
-            loginOkMessage.set("timeOnline", 1);
-            loginOkMessage.set("lastLoginDate", "" + System.currentTimeMillis() / 1000);
-            loginOkMessage.set("country", "US");
-
-            clientConnection.getOut().write(messageFactory.toPdu(loginOkMessage));
-
-            //
-            // Send the home village
-            //
-
-            clientConnection.getOut().write(messageFactory.toPdu(loadHome()));
-
-            //
-            // The request loop handles further PDUs
-            //
-
+            log.debug("Start Sending Packets");
             processRequests(clientConnection);
 
-        } catch (PduException | IOException e) {
+        } catch (PduException e) {
             log.error("Key exchange did not complete: " + e, e);
         }
     }
 
     private void processRequests(Connection connection) {
+
+        int crashCount = 0;
         try {
             while (running.get()) {
 
                 //
                 // Read a request PDU
                 //
-
-                Pdu pdu = connection.getIn().read();
-
-                Message request;
-                try {
-                    request = messageFactory.fromPdu(pdu);
-                } catch (RuntimeException e) {
-                    // Probably no type definition for the PDU
-                    log.debug("Can't respond to {}: {}", pdu.getType(), e.getMessage());
-                    continue;
+                PduInputStream inStream = connection.getIn();
+                if( inStream==null ) {
+                    log.info("Ending. Likely App Crash. {} done", connection.getName());
                 }
 
-                //
-                // Create a response
-                //
+                try{
+                    Pdu pdu = inStream.read();
 
-                Message response = null;
 
-                switch (pdu.getType()) {
-                    case EndClientTurn:
-                        response = endTurn(request);
-                        break;
+                    log.debug("Incoming Pdu id:{} type:{}", pdu.getId(), pdu.getType());
 
-                    case AttackResult:
-                        response = loadHome();
-                        break;
+                    Message request;
+                    try {
+                        request = messageFactory.fromPdu(pdu);
+                    } catch (RuntimeException e) {
+                        // Probably no type definition for the PDU
+                        log.debug("Can't respond to {}: {}", pdu.getType(), e.getMessage());
+                        e.printStackTrace(System.out);
+                        continue;
+                    }
 
-                    case KeepAlive:
-                        response = messageFactory.newMessage(ServerKeepAlive);
-                        break;
+                    //
+                    // Create a response
+                    //
 
-                    default:
-                        log.debug("Not handling {} from {}", pdu.getType(), connection.getName());
-                }
+                    Message response = null;
 
+                    switch (pdu.getType()) {
+                        case EndClientTurn:
+                            response = endTurn(request);
+                            break;
+
+                        case AttackResult:
+                            response = loadHome();
+                            break;
+
+                        case KeepAlive:
+                            response = messageFactory.newMessage(ServerKeepAlive);
+                            break;
+
+                        case SetDeviceToken:
+                            response = messageFactory.newMessage(ServerKeepAlive);
+                            break;
+
+                        case Login:
+                            response = login(request);
+                            break;
+
+                        default:
+                            log.debug("Not handling {} from {}", pdu.getType(), connection.getName());
+                    }
+
+
+                    if (response != null) {
+                        log.debug(" Responding to {}", pdu.getType());
+                        connection.getOut().write(messageFactory.toPdu(response));
+                    } else {
+                        log.debug(" No Responce to {}", pdu.getType());
+                    }
+                    crashCount = 0;
                 //
                 // Return the response to the client
                 //
-
-                if (response != null) {
-                    connection.getOut().write(messageFactory.toPdu(response));
+                } catch(IOException e){
+                    log.error("Error Count {}", crashCount);
+                    crashCount++;
+                    if( crashCount >100 ) {
+                        log.info("Ending. Likely App Crash.", connection.getName());
+                        break;
+                    } else {
+                        continue;
+                    }
                 }
             }
 
             log.info("{} done", connection.getName());
-        } catch (RuntimeException | IOException e) {
+        } catch (RuntimeException e) {
             log.info(
                 "{} terminating: {}",
                 connection.getName(),
                 e
             );
         }
+    }
+
+    private Message login(Message loginMessage) throws IOException  {
+
+        // A login Request requires the following
+        //  Encription, LoginOk, OwnHomeData, UnknownInfoResponse, AvatarStream
+
+
+
+
+        Long userId = loginMessage.getLong("userId");
+        if (userId == null) {
+            throw new PduException("No user id in login");
+        }
+        sessionState.setUserId(userId);
+
+        Object clientSeed = loginMessage.get("clientSeed");
+        if (clientSeed == null || !(clientSeed instanceof Integer)) {
+            throw new PduException("Expected client seed in login message");
+        }
+        Clash7Random prng = new Clash7Random((Integer) clientSeed);
+
+        //
+        //  Encription
+        //      Generate a nonce and pass it back to the client
+        //
+        Message encryptionMessage = messageFactory.newMessage(Encryption);
+
+        byte[] nonce = new byte[24];
+        ThreadLocalRandom.current().nextBytes(nonce); // generate a new key
+        encryptionMessage.set("serverRandom", nonce);
+        encryptionMessage.set("version", 1);
+
+        clientConnection.getOut().write(messageFactory.toPdu(encryptionMessage));
+        log.info("Sent Encription");
+
+
+        clientConnection.setKey(prng.scramble(nonce));
+
+        //
+        // LoginOk
+        //      Tell the client that all is well
+        //
+
+        Message loginOkMessage = messageFactory.newMessage(LoginOk);
+
+        loginOkMessage.set("userId", userId);
+        loginOkMessage.set("homeId", userId);
+        loginOkMessage.set("userToken", loginMessage.get("userToken"));
+        loginOkMessage.set("majorVersion", loginMessage.get("majorVersion"));
+        loginOkMessage.set("minorVersion", loginMessage.get("minorVersion"));
+        loginOkMessage.set("revision", 3);
+        loginOkMessage.set("environment", "prod");
+        loginOkMessage.set("loginCount", 60);
+        loginOkMessage.set("timeOnline", 6110);
+        loginOkMessage.set("f12", 14);
+        loginOkMessage.set("facebookAppId", "297484437009394");
+        loginOkMessage.set("lastLoginDate", "" + System.currentTimeMillis() / 1000);
+        loginOkMessage.set("joinDate", "1436580824000");
+        loginOkMessage.set("country", "US");
+
+        clientConnection.getOut().write(messageFactory.toPdu(loginOkMessage));
+        log.info("Sent LoginOk");
+
+        //
+        // OwnHomeData
+        //      Your base info
+        //
+        clientConnection.getOut().write(messageFactory.toPdu(loadHome()));
+        log.info("Sent OwnHomeData");
+
+
+        
+        //
+        // UnknownInfoResponse
+        //      ???
+        //
+        Message response = messageFactory.newMessage(UnknownInfoResponse);
+        response.set("f1", 4);
+        response.set("f2", 16);
+        response.set("f3", 1651423);
+        response.set("f4", 40);
+        response.set("f5", 1077978);
+        response.set("f6", 12);
+        clientConnection.getOut().write(messageFactory.toPdu(response));
+        log.info("Sent UnknownInfoResponse");
+
+
+        // //
+        // // AvatarStream
+        // //      ???
+        // //
+
+
+
+
+        return null;
     }
 
     private Message endTurn(Message message) throws IOException {
@@ -379,6 +442,12 @@ public class ServerSession {
         Message village = villageManager.getOwnHomeData();
         // Set remaining shield to 0 to avoid annoying attack confirmation dialog
         village.set("remainingShield", 0);
+
+        int secondsTimeStamp = (int) (System.currentTimeMillis() / 1000);
+
+        // Give the base some age
+        village.set("age", 4 );
+        village.set("timeStamp", secondsTimeStamp - 4 );
 
         return village;
     }

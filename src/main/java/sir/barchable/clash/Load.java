@@ -35,13 +35,13 @@ public class Load {
         if (name.endsWith(".pdu")) {
             try (FileInputStream in = new FileInputStream(inFile)) {
                 Message message = services.getMessageFactory().fromStream(in);
-                Json.writePretty(getFields(message), System.out);
+                System.out.print( message.toString() );
 
                 // Try again
                 Pdu pdu2 = services.getMessageFactory().toPdu(message);
                 Message m2 = services.getMessageFactory().fromPdu(pdu2);
-                Json.writePretty(getFields(m2), System.out);
 
+                System.out.print( m2.toString() );
 
                 // // And again
                 // Pdu pdu3 = services.getMessageFactory().toPdu(m2);
@@ -53,27 +53,4 @@ public class Load {
         }
     }
 
-    /**
-     * Unpack nested JSON encoded objects. This will extract know JSON formatted object descriptions from the PDU,
-     * deserialize them, and insert the raw objects back into the source map in place of the strings.
-     */
-    private Map<String, Object> getFields(Message message) throws IOException {
-        Map<String, Object> fields = new LinkedHashMap<>( message.getFields() );
-        
-        switch (message.getType()) {
-            case EnemyHomeData:
-            case OwnHomeData:
-            case VisitedHomeData:
-                Village village = Json.valueOf((String) fields.get("homeVillage"), Village.class);
-                fields.put("homeVillage", village);
-                break;
-
-            case WarHomeData:
-                WarVillage warVillage = Json.valueOf((String) fields.get("homeVillage"), WarVillage.class);
-                fields.put("homeVillage", warVillage);
-                break;
-        }
-
-        return fields;
-    }
 }

@@ -1455,6 +1455,12 @@
       "fields" : [ ]
     } ]
   }, {
+    "id" : null,
+    "name" : "AvatarStream",
+    "comment" : "24411",
+    "fields" : [ ],
+    "extensions" : [ ]
+  }, {
     "id" : 20000,
     "name" : "Encryption",
     "comment" : null,
@@ -1532,26 +1538,6 @@
     }, {
       "name" : "attacker",
       "type" : "UserComponent",
-      "comment" : null,
-      "default" : null
-    }, {
-      "name" : "attackerResources",
-      "type" : "ResourceListComponent",
-      "comment" : null,
-      "default" : null
-    }, {
-      "name" : null,
-      "type" : "INT",
-      "comment" : null,
-      "default" : null
-    }, {
-      "name" : null,
-      "type" : "INT",
-      "comment" : null,
-      "default" : null
-    }, {
-      "name" : null,
-      "type" : "?LONG",
       "comment" : null,
       "default" : null
     } ],
@@ -1724,7 +1710,7 @@
       "comment" : null,
       "default" : null
     }, {
-      "name" : null,
+      "name" : "f12",
       "type" : "INT",
       "comment" : null,
       "default" : null
@@ -1849,6 +1835,42 @@
     }, {
       "name" : "garrison",
       "type" : "UnitComponent[]",
+      "comment" : null,
+      "default" : null
+    } ],
+    "extensions" : [ ]
+  }, {
+    "id" : 24340,
+    "name" : "UnknownInfoResponse",
+    "comment" : null,
+    "fields" : [ {
+      "name" : "f1",
+      "type" : "INT",
+      "comment" : null,
+      "default" : null
+    }, {
+      "name" : "f2",
+      "type" : "INT",
+      "comment" : null,
+      "default" : null
+    }, {
+      "name" : "f3",
+      "type" : "INT",
+      "comment" : null,
+      "default" : null
+    }, {
+      "name" : "f4",
+      "type" : "INT",
+      "comment" : null,
+      "default" : null
+    }, {
+      "name" : "f5",
+      "type" : "INT",
+      "comment" : null,
+      "default" : null
+    }, {
+      "name" : "f6",
+      "type" : "INT",
       "comment" : null,
       "default" : null
     } ],

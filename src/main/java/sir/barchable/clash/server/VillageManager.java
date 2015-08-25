@@ -136,8 +136,9 @@ public class VillageManager {
             setWarLayout(enemyVillage);
         }
 
-        enemyVillage.set("attacker", homeVillage.get("user"));
-        enemyVillage.set("attackerResources", homeVillage.get("resources"));
+//        enemyVillage.set("attacker", homeVillage.get("user"));
+        log.warn("RESOURCES ARE NOT RIGHT 1");
+        // enemyVillage.set("attackerResources", homeVillage.get("resources"));
         return enemyVillage;
     }
 
@@ -152,9 +153,10 @@ public class VillageManager {
             setWarLayout(enemyVillage);
         }
         enemyVillage.set("user", visitedVillage.get("user"));
-        enemyVillage.set("resources", visitedVillage.get("resources"));
+        log.warn("RESOURCES ARE NOT RIGHT 2");
+        //enemyVillage.set("resources", visitedVillage.get("resources"));
         enemyVillage.set("attacker", homeVillage.get("user"));
-        enemyVillage.set("attackerResources", homeVillage.get("resources"));
+        //enemyVillage.set("attackerResources", homeVillage.get("resources"));
         return enemyVillage;
     }
 
@@ -197,7 +199,7 @@ public class VillageManager {
 
         // Attacker values from home data
         enemyVillage.set("attacker", homeVillage.get("user"));
-        enemyVillage.set("attackerResources", homeVillage.get("resources"));
+        //enemyVillage.set("attackerResources", homeVillage.get("resources"));
         return enemyVillage;
     }
 
