@@ -166,5 +166,7 @@ public class Village {
         public int obstacleClearCounter;
         public int time_to_gembox_drop;
         public int time_in_gembox_period;
+        public int time_to_special_drop;
+        public int time_to_special_period;
     }
 }
