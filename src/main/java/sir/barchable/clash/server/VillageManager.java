@@ -143,9 +143,8 @@ public class VillageManager {
             setWarLayout(enemyVillage);
         }
 
-//        enemyVillage.set("attacker", homeVillage.get("user"));
-        log.warn("RESOURCES ARE NOT RIGHT 1");
-        // enemyVillage.set("attackerResources", homeVillage.get("resources"));
+        enemyVillage.set("attacker", homeVillage.get("user"));
+        enemyVillage.set("attackerResources", homeVillage.get("resources"));
         return enemyVillage;
     }
 
@@ -160,10 +159,9 @@ public class VillageManager {
             setWarLayout(enemyVillage);
         }
         enemyVillage.set("user", visitedVillage.get("user"));
-        log.warn("RESOURCES ARE NOT RIGHT 2");
-        //enemyVillage.set("resources", visitedVillage.get("resources"));
+        enemyVillage.set("resources", visitedVillage.get("resources"));
         enemyVillage.set("attacker", homeVillage.get("user"));
-        //enemyVillage.set("attackerResources", homeVillage.get("resources"));
+        enemyVillage.set("attackerResources", homeVillage.get("resources"));
         return enemyVillage;
     }
 
@@ -209,8 +207,8 @@ public class VillageManager {
         // enemyVillage.set("user", user.getFields());
 
         // Attacker values from home data
-        //enemyVillage.set("attacker", homeVillage.get("user"));
-        //enemyVillage.set("attackerResources", homeVillage.get("resources"));
+        enemyVillage.set("attacker", homeVillage.get("user"));
+        enemyVillage.set("attackerResources", homeVillage.get("resources"));
         return enemyVillage;
     }
 
@@ -218,9 +216,6 @@ public class VillageManager {
 
         Pdu enemyClone = services.getMessageFactory().toPdu(VillageManager.workingEnemyHome);
         Message enemyVillage = services.getMessageFactory().fromPdu(enemyClone);
-
-                
-
 
         Replay replay = Json.valueOf(replayMessage.getString("replay"), Replay.class);
         Message homeVillage = getOwnHomeData();
@@ -249,81 +244,23 @@ public class VillageManager {
             }
         }
         layoutManager.setTraps(village, teslas, traps);
-        //loadoutManager.setGarrison(enemyVillage, garrison);
+        loadoutManager.setGarrison(enemyVillage, garrison);
 
         long homeId = (long) warVillage.avatar_id_high << 32 | warVillage.avatar_id_low & 0xffffffffl;
         //enemyVillage.set("homeId", homeId);
         enemyVillage.set("homeVillage", Json.toString(village));
 
-        Message user = enemyVillage.getMessage("user");
+        // Message user = enemyVillage.getMessage("user");
         //user.set("userName", warVillage.name);
-        Message clan = messageFactory.newMessage("ClanComponent");
+        // Message clan = messageFactory.newMessage("ClanComponent");
         //user.set("clan", clan.getFields());
         //clan.set("clanName", warVillage.alliance_name);
         //clan.set("badge", warVillage.badge_id);
         //user.set("castleLevel", 5);
 
         // Attacker values from home data
-        //enemyVillage.set("attacker", homeVillage.get("user"));
-        //enemyVillage.set("attackerResources", homeVillage.get("resources"));
-        Map<String, Object> attackerResources = (Map<String, Object>) enemyVillage.get("attackerResources");
-        
-
-        Message m, m1, m2, m3;
-
-        m = messageFactory.newMessage("ResourceComponent");
-        m.set("type",4000008); // Dragons
-        m.set("value",10);
-        attackerResources.put("unitCounts",new Object[]{ m.getFields()});
-
-
-        m = messageFactory.newMessage("ResourceComponent");
-        m.set("type",4000008); // Dragons
-        m.set("value",3);
-        attackerResources.put("unitLevels",new Object[]{ m.getFields()});
-
-
-        m = messageFactory.newMessage("ResourceComponent");
-        m.set("type",26000000); // light
-        m.set("value",3);
-        attackerResources.put("spellCounts",new Object[]{ m.getFields()});
-
-        m1 = messageFactory.newMessage("ResourceComponent");
-        m1.set("type",26000000); // light
-        m1.set("value",3);
-        m2 = messageFactory.newMessage("ResourceComponent");
-        m2.set("type",26000001); // heal
-        m2.set("value",3);
-        m3 = messageFactory.newMessage("ResourceComponent");
-        m3.set("type",26000002); // rage
-        m3.set("value",3);
-        attackerResources.put("spellLevels",new Object[]{ m1.getFields(), m2.getFields(), m3.getFields()});
-
-        
-        m = messageFactory.newMessage("ResourceComponent");
-        m.set("type",28000000);
-        m.set("value",2);
-        attackerResources.put("heroLevels",new Object[]{ m.getFields()});
-
-
-        m = messageFactory.newMessage("ResourceComponent");
-        m.set("type",28000000);
-        m.set("value",0);
-        attackerResources.put("heroHealth",new Object[]{ m.getFields()});
-
-
-        m = messageFactory.newMessage("ResourceComponent");
-        m.set("type",28000000);
-        m.set("value",0);
-        attackerResources.put("heroState",new Object[]{ m.getFields()});
-
-
-        m = messageFactory.newMessage("UnitComponent");
-        m.set("typeId",4000005);
-        m.set("count",5);
-        m.set("level",4);
-        attackerResources.put("allianceUnits",new Object[]{ m.getFields()});
-
+        enemyVillage.set("attacker", homeVillage.get("user"));
+        enemyVillage.set("attackerResources", homeVillage.get("resources"));
 
         return enemyVillage;
     }

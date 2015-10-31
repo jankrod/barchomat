@@ -6,6 +6,8 @@ import sir.barchable.clash.ResourceException;
 import sir.barchable.clash.model.*;
 import sir.barchable.clash.model.Loadout.LoadoutUnit;
 import sir.barchable.clash.protocol.Message;
+import sir.barchable.clash.ClashServices;
+import sir.barchable.clash.protocol.MessageFactory;
 import sir.barchable.util.Json;
 
 import java.io.File;
@@ -28,6 +30,8 @@ public class LoadoutManager {
 
     private Logic logic;
     private Map<String, Army> armies = new HashMap<>();
+    private ClashServices services = ClashServices.getInstance();
+    private MessageFactory messageFactory = services.getMessageFactory();
 
     public LoadoutManager(Logic logic, File dir) throws IOException {
         this.logic = logic;
@@ -137,43 +141,63 @@ public class LoadoutManager {
     }
 
     public void applyLoadOut(Message village, String loadoutName) {
-        Map<String, Object> resources = village.getFields("attackerResources");
-        if (resources == null) {
-            throw new IllegalArgumentException("Incomplete village definition (no resources)");
-        }
 
-        Army army = getLoadout(loadoutName);
-        checkLevels(army);
 
-        Unit[] units = army.getUnits();
-        Arrays.sort(units, (o1, o2) -> o1.getId() - o2.getId());
-        resources.put("unitCounts", toResources(units, Unit::getCnt));
-        resources.put("unitLevels", toResources(units, Unit::getLvl));
-        int totalSpaces = 0;
-        for (Unit unit : units) {
-            totalSpaces += unit.getCnt() * logic.getInt(unit.getId(), "HousingSpace");
-        }
 
-        Unit[] spells = army.getSpells();
-        Arrays.sort(spells, (o1, o2) -> o1.getId() - o2.getId());
-        resources.put("spellCounts", toResources(spells, Unit::getCnt));
-        resources.put("spellLevels", toResources(spells, Unit::getLvl));
+        Map<String, Object> attackerResources = (Map<String, Object>) village.get("attackerResources");
+        
 
-        Unit[] heroes = army.getHeroes();
-        Arrays.sort(heroes, (o1, o2) -> o1.getId() - o2.getId());
-        resources.put("heroLevels", toResources(heroes, Unit::getLvl));
-        resources.put("heroHealth", toResources(heroes, 0));
-        resources.put("heroState", toResources(heroes, 3));
+        Message m, m1, m2, m3;
 
-        Unit[] garrison = army.getGarrison();
-        Arrays.sort(garrison, (o1, o2) -> o1.getId() - o2.getId());
-        resources.put("allianceUnits", toUnitComponents(garrison));
+        m = messageFactory.newMessage("ResourceComponent");
+        m.set("type",4000008); // Dragons
+        m.set("value",10);
+        attackerResources.put("unitCounts",new Object[]{ m.getFields()});
 
-        int garrisonSpaces = 0;
-        for (Unit unit : garrison) {
-            garrisonSpaces += unit.getCnt() * logic.getInt(unit.getId(), "HousingSpace");
-        }
-        log.info("Applied loadout {}, army size={}, garrison size={}", loadoutName, totalSpaces, garrisonSpaces);
+
+        m = messageFactory.newMessage("ResourceComponent");
+        m.set("type",4000008); // Dragons
+        m.set("value",2);
+        attackerResources.put("unitLevels",new Object[]{ m.getFields()});
+
+
+        // Map<String, Object> resources = village.getFields("attackerResources");
+        // if (resources == null) {
+        //     throw new IllegalArgumentException("Incomplete village definition (no resources)");
+        // }
+
+        // Army army = getLoadout(loadoutName);
+        // checkLevels(army);
+
+        // Unit[] units = army.getUnits();
+        // Arrays.sort(units, (o1, o2) -> o1.getId() - o2.getId());
+        // resources.put("unitCounts", toResources(units, Unit::getCnt));
+        // resources.put("unitLevels", toResources(units, Unit::getLvl));
+        // int totalSpaces = 0;
+        // for (Unit unit : units) {
+        //     totalSpaces += unit.getCnt() * logic.getInt(unit.getId(), "HousingSpace");
+        // }
+
+        // Unit[] spells = army.getSpells();
+        // Arrays.sort(spells, (o1, o2) -> o1.getId() - o2.getId());
+        // resources.put("spellCounts", toResources(spells, Unit::getCnt));
+        // resources.put("spellLevels", toResources(spells, Unit::getLvl));
+
+        // Unit[] heroes = army.getHeroes();
+        // Arrays.sort(heroes, (o1, o2) -> o1.getId() - o2.getId());
+        // resources.put("heroLevels", toResources(heroes, Unit::getLvl));
+        // resources.put("heroHealth", toResources(heroes, 0));
+        // resources.put("heroState", toResources(heroes, 3));
+
+        // Unit[] garrison = army.getGarrison();
+        // Arrays.sort(garrison, (o1, o2) -> o1.getId() - o2.getId());
+        // resources.put("allianceUnits", toUnitComponents(garrison));
+
+        // int garrisonSpaces = 0;
+        // for (Unit unit : garrison) {
+        //     garrisonSpaces += unit.getCnt() * logic.getInt(unit.getId(), "HousingSpace");
+        // }
+        // log.info("Applied loadout {}, army size={}, garrison size={}", loadoutName, totalSpaces, garrisonSpaces);
     }
 
     /**
