@@ -5,9 +5,7 @@
     {"name": "userId", "type": "LONG"},
     {"name": "homeId", "type": "LONG"},
     {"name": "clan", "type": "?ClanComponent"},
-
     {"name": "league", "type": "?LONG"},
-
     {"name": "leagueType", "type": "INT"},
     {"name": "castleLevel", "type": "INT"},
     {"type": "INT"},
@@ -24,10 +22,8 @@
     {"type": "INT"},
     {"type": "INT"},
     {"name": "builders", "type": "INT"},
-
     {"name": "userName", "type": "STRING"},
-
-    {"type": "INT"},
+    {"name": "facebookId", "type": "STRING"},
     {"name": "level", "type": "INT"},
     {"name": "points", "type": "INT"},
     {"name": "gemCount", "type": "INT"},
@@ -35,17 +31,25 @@
     {"type": "INT"},
     {"type": "INT"},
     {"name": "trophyCount", "type": "INT"},
+
     {"type": "INT"},
     {"type": "INT"},
     {"type": "INT"},
     {"type": "INT"},
-    {"type": "INT"},
-    {"type": "INT"},
+    {"type": "BYTE"},
+    {"type": "BYTE"},
+    {"type": "?INT[4]"},
+    {"type": "BYTE"},
     {"type": "INT"},
 
     {"type": "?LONG"},
+    {"type": "BYTE"},
 
     {"type": "INT"},
+    {"type": "INT"},
+    {"type": "INT"},
+    {"type": "INT"},
+    
     {"type": "INT"},
     {"type": "INT"},
     {"type": "INT"}

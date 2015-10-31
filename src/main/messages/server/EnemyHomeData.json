@@ -11,11 +11,11 @@
     {"type": "INT", "default": 1200},
     {"type": "INT", "default": 60},
     {"name": "homeVillage", "type": "?ZIP_STRING"},
-    {"name": "user", "type": "UserComponent"},    
-    {"name": "resources", "type": "?ResourceListComponent"},
+    {"name": "user", "type": "UserComponent"},
+    {"name": "resources", "type": "ResourceListComponent"},
     {"type": "INT"},
     {"name": "attacker", "type": "UserComponent"},
-    {"name": "attackerResources", "type": "?ResourceListComponent"}
-
+    {"name": "attackerResources", "type": "ResourceListComponent"},
+    {"type": "INT"}
   ]
 }

@@ -35,8 +35,7 @@ public class Load {
         if (name.endsWith(".pdu")) {
             try (FileInputStream in = new FileInputStream(inFile)) {
                 Message message = services.getMessageFactory().fromStream(in);
-                System.out.print( message.toString() );
-
+                
                 // Try again
                 Pdu pdu2 = services.getMessageFactory().toPdu(message);
                 Message m2 = services.getMessageFactory().fromPdu(pdu2);
