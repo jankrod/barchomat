@@ -2,6 +2,6 @@
   "id": 24338,
   "name": "WarLog",
   "fields": [
-    {"name": "entries", "type": "WarLogEntry[]"}
+    {"name": "entries", "type": "WarLogEntry[1]"}
   ]
 }

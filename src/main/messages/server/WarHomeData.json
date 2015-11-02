@@ -7,6 +7,7 @@
     {"name": "homeVillage", "type": "ZIP_STRING"},
     {"type": "INT"},
     {"type": "BOOLEAN"},
-    {"name": "user", "type": "UserComponent"}
+    {"name": "user", "type": "UserComponent"},
+    {"name": "resources", "type": "ResourceListComponent"}
   ]
 }

@@ -250,13 +250,13 @@ public class VillageManager {
         //enemyVillage.set("homeId", homeId);
         enemyVillage.set("homeVillage", Json.toString(village));
 
-        // Message user = enemyVillage.getMessage("user");
-        //user.set("userName", warVillage.name);
-        // Message clan = messageFactory.newMessage("ClanComponent");
-        //user.set("clan", clan.getFields());
-        //clan.set("clanName", warVillage.alliance_name);
-        //clan.set("badge", warVillage.badge_id);
-        //user.set("castleLevel", 5);
+        Message user = enemyVillage.getMessage("user");
+        user.set("userName", warVillage.name);
+        Message clan = messageFactory.newMessage("ClanComponent");
+        user.set("clan", clan.getFields());
+        clan.set("clanName", warVillage.alliance_name);
+        clan.set("badge", warVillage.badge_id);
+        user.set("castleLevel", 5);
 
         // Attacker values from home data
         enemyVillage.set("attacker", homeVillage.get("user"));
