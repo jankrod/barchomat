@@ -4,8 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import sir.barchable.clash.protocol.Protocol.StructDefinition;
 import sir.barchable.clash.protocol.Protocol.StructDefinition.FieldDefinition;
 import sir.barchable.util.Json;
-import sir.barchable.clash.model.json.Village;
-import sir.barchable.clash.model.json.WarVillage;
+import sir.barchable.clash.model.json.*;
 
 import java.util.LinkedHashMap;
 import java.io.IOException;
@@ -165,6 +164,11 @@ public class Message {
             case WarHomeData:
                 WarVillage warVillage = Json.valueOf((String) fields.get("homeVillage"), WarVillage.class);
                 fields.put("homeVillage", warVillage);
+                break;
+
+            case HomeBattleReplayData:
+                Replay data = Json.valueOf((String) fields.get("replay"), Replay.class);
+                fields.put("replay", data);
                 break;
         }
 
